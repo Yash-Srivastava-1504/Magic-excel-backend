@@ -1,0 +1,1 @@
+add new column High Cost and value True if @Cost_Price_Per_Unit_USD is more than 900
