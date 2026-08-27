@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from app.config import settings
 from app.models.schemas import TokenData, User
-from app.models.database import get_db
+from app.models.database import get_supabase
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
 
@@ -22,13 +22,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise credentials_exception
 
-    with get_db() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                "SELECT username, full_name FROM users WHERE username = %s",
-                (token_data.username,)
-            )
-            user_data = cur.fetchone()
+    try:
+        sb = get_supabase()
+        res = sb.table("users").select("username, full_name").eq("username", token_data.username).execute()
+        user_data = res.data[0] if res.data else None
+    except Exception as e:
+        print(f"Error fetching user: {e}")
+        user_data = None
 
     if user_data is None:
         raise credentials_exception
