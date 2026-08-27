@@ -1,8 +1,9 @@
 from pydantic_settings import BaseSettings
 from typing import Optional
+from pathlib import Path
 
 class Settings(BaseSettings):
-    APP_NAME: str = "DataSage API"
+    APP_NAME: str = "Magic Excel API"
     DEBUG: bool = False
 
     HF_TOKEN: Optional[str] = None
@@ -16,7 +17,12 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     SECRET_KEY: str
 
+    # Supabase
+    SUPABASE_URL: Optional[str] = None
+    SUPABASE_SECRET_KEY: Optional[str] = None
+
     class Config:
-        env_file = ".env"
+        env_file = str(Path(__file__).parent.parent / ".env")
+        extra = "ignore"
 
 settings = Settings()
